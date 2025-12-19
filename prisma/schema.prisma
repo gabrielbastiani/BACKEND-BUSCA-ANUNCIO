@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// criar uma migration: yarn prisma migrate dev
+
+model Ad {
+  id                   String  @id @default(uuid())
+  adId                 String  @unique // ID único do anúncio na plataforma
+  pageName             String // Nome do anunciante
+  adCreativeUrl        String? // URL do criativo
+  adText               String? // Texto do anúncio
+  adImageUrl           String? // URL da imagem
+  adVideoUrl           String? // URL do vídeo
+  adLink               String? // Link de destino
+  adPlatform           String? // Facebook, Instagram, etc
+  dataConfidence       String? // 'high', 'medium', 'low' - indica confiança nos dados estimados
+  impressionsEstimated Boolean @default(false) // Indica se impressões foram estimadas
+
+  // Novos campos para filtros
+  language     String? // Idioma do anúncio (pt-BR, en-US, etc)
+  mediaType    String? // image, video, carousel, etc
+  startDate    DateTime? // Data de início
+  endDate      DateTime? // Data de término
+  status       String? // ATIVO, INATIVO
+  activeStatus String? // active, inactive
+  isActive     Boolean   @default(true)
+
+  // Novo: Dias ativos
+  activeDays Int? // Quantos dias o anúncio está/ficou ativo
+
+  // Dados de impressões
+  impressionsMin      Int? // Impressões mínimas
+  impressionsMax      Int? // Impressões máximas
+  impressionsDateFrom DateTime? // Data início das impressões
+  impressionsDateTo   DateTime? // Data fim das impressões
+
+  // Dados da busca
+  keyword  String // Palavra-chave usada
+  country  String // País (BR, US, etc)
+  currency String? // Moeda (BRL, USD, etc)
+
+  // Metadados
+  platformSpecificData Json? // Dados extras em JSON
+  libraryId            String? // ID da biblioteca do Facebook
+
+  // Novo: Última vez que foi visto ativo
+  lastSeenActive DateTime @default(now()) @db.Timestamptz(3)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([keyword])
+  @@index([country])
+  @@index([pageName])
+  @@index([language])
+  @@index([mediaType])
+  @@index([status])
+  @@index([startDate])
+  @@index([isActive])
+  @@map("ads")
+}
+
+model SearchHistory {
+  id            String    @id @default(uuid())
+  keyword       String
+  country       String
+  filters       Json? // Filtros aplicados
+  totalAdsFound Int       @default(0)
+  totalAdsSaved Int       @default(0)
+  status        String // pending, processing, completed, failed
+  errorMessage  String?
+  startedAt     DateTime  @default(now())
+  completedAt   DateTime?
+  created_at    DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([keyword])
+  @@index([status])
+  @@index([created_at])
+  @@map("search_history")
+}

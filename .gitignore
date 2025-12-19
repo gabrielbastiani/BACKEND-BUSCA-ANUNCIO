@@ -1,0 +1,31 @@
+# Dependências do Node
+node_modules/
+/pids
+/logs
+*.pid
+*.seed
+*.lock
+
+# Diretórios opcionais do npm
+.npm
+.eslintcache
+
+# Variáveis de ambiente
+# .env
+# .env.*
+
+# Artefatos de build/distribuição
+/dist
+/build
+
+# Logs
+npm-debug.log*
+*.log
+
+# Histórico do REPL (opcional)
+.node_repl_history
+
+# Arquivos do sistema operacional e editor (opcional)
+.DS_Store
+Thumbs.db
+.vscode/
